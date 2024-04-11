@@ -11,7 +11,7 @@ require('dotenv').config()
 
 //Middlewears
 app.use(cors({
-    origin: '*',
+    origin: process.env.CLINT_PAGE_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
