@@ -32,7 +32,7 @@ const ExamRouterGetRequest_single = async (req, res) => {
 
         if (ExamData) {
             return res.header(200).json({ status: true, massage: true, data: ExamData });
-        }else{
+        } else {
             return res.header(200).json({ status: false, massage: "No Exam data to show", data: null });
         };
     };
@@ -40,56 +40,58 @@ const ExamRouterGetRequest_single = async (req, res) => {
 
 const ExamRouterPostRequest = async (req, res) => {
 
-    let { 
-        examName, 
-        passmark, 
-        students, 
-        marksPerQuestion, 
-        QuestionAnswer, 
+    let {
+        examName,
+        passmark,
+        students,
+        marksPerQuestion,
+        QuestionAnswer,
         TotalTime
     } = req.body;
 
-    let exam = await ExamModel.create({
-        examName, 
-        passmark, 
-        students, 
-        marksPerQuestion, 
-        QuestionAnswer, 
-        TotalTime
-    }).catch(err => {
-        return res.header(500).json({ status: false, massage: `Server Error : ${err}`, data: null })
-    });
+    try {
+        let exam = await ExamModel.create({
+            examName,
+            passmark,
+            students,
+            marksPerQuestion,
+            QuestionAnswer,
+            TotalTime
+        });
 
-    students?.map( async student => {
-        let studentData = await userModule.findById(student._id);
-        studentData.pendingExam.push({ examName: exam.examName, _id: exam._id });
-        studentData.save();
-    });
+        students?.map(async student => {
+            let studentData = await userModule.findById(student._id);
+            studentData.pendingExam.push({ examName: exam.examName, _id: exam._id });
+            studentData.save();
+        });
+        return res.header(200).json({ status: true, massage: "SuccessFuly Created Exam", data: null })
+    } catch (error) {
+        return res.header(500).json({ status: false, massage: `Server Error : ${error}`, data: null });
+    };
 
-    return res.header(200).json({ status:true, massage: "SuccessFuly Created Exam", data: null })
 };
 
 const ExamRouterPutRequest = async (req, res) => {
 
-    let updateRequestedExam = req.body;
+    const updateRequestedExam = req.body;
 
-    const Exam = await ExamModel.findById(updateRequestedExam._id).catch(err => {
-        return res.header(500).json({ massage: `Error in server : ${err}`, data: null });
-    });
+    try {
+        const Exam = await ExamModel.findById(updateRequestedExam._id);
+        if (Exam) {
+            for (let i = 0; i < Exam.students.length; i++) {
+                for (let j = 0; j < updateRequestedExam.students.length; j++) {
+                    if (Exam.students[i]._id === updateRequestedExam.students._id) {
 
-    if (!Exam) {
-        return res.header(404).json({ massage: `No Existing Exam found maching with given id`, data: null });
+                    };
+
+                };
+            }
+        }
+    } catch (error) {
+
     };
 
-    //****Update Student logic will go here****
-    if (Exam.passmark !== updateRequestedExam.passmark) {
-        Exam.passmark = updateRequestedExam.passmark;
-    };
-    Exam.QuestionAnswer = updateRequestedExam.QuestionAnswer;
-    Exam.save();
-
-    return res.header(200).json({ massage: "Update Successfull", data: null });
-}
+};
 
 const ExamRouterDeletRequest = async (req, res) => {
 
@@ -100,7 +102,7 @@ const ExamRouterDeletRequest = async (req, res) => {
     if (!ExamDeletRequest) {
         return res.header(200).json({ status: false, massage: "No such Exam is available", data: null });
     } else {
-        ExamDeletRequest.student?.map( async item => {
+        ExamDeletRequest.student?.map(async item => {
             const student = await userModule.findById(item._id).catch(err => console.log(err));
             if (student) {
                 let newPendingExamList = student.pendingExam?.filter(ExamItem => {

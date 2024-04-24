@@ -54,7 +54,11 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String,
         require: true,
-    }
+    },
+    address: {
+        type: Object,
+        require: true,
+    },
 }, { timestamps: true });
 
 const userModule = mongoose.model('user', userSchema);

@@ -12,7 +12,8 @@ const UserRoutePostRequest = async (req, res) => {
         minQulification,
         courseName,
         CoursePrice,
-        gender
+        gender,
+        address
     } = req.body;
 
     let password = "Gyanada" + name;
@@ -29,7 +30,8 @@ const UserRoutePostRequest = async (req, res) => {
             CoursePrice,
             gender,
             password: password,
-        })
+            address
+        });
 
         if (response) {
             return res.header(200).json({ massage: "User Sucessfully Registred", data: null });
